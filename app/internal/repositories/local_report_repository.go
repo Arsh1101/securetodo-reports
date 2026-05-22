@@ -20,7 +20,7 @@ func NewLocalReportRepository(dir string) *LocalReportRepository {
 }
 
 func (r *LocalReportRepository) Save(ctx context.Context, fileName string, data []byte) error {
-	if err := validateReportFileName(fileName); err != nil {
+	if err := ValidateReportFileName(fileName); err != nil {
 		return err
 	}
 
@@ -28,9 +28,7 @@ func (r *LocalReportRepository) Save(ctx context.Context, fileName string, data 
 		return err
 	}
 
-	path := filepath.Join(r.dir, fileName)
-
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(filepath.Join(r.dir, fileName), data, 0644)
 }
 
 func (r *LocalReportRepository) List(ctx context.Context) ([]string, error) {
@@ -60,16 +58,14 @@ func (r *LocalReportRepository) List(ctx context.Context) ([]string, error) {
 }
 
 func (r *LocalReportRepository) Read(ctx context.Context, fileName string) ([]byte, error) {
-	if err := validateReportFileName(fileName); err != nil {
+	if err := ValidateReportFileName(fileName); err != nil {
 		return nil, err
 	}
 
-	path := filepath.Join(r.dir, fileName)
-
-	return os.ReadFile(path)
+	return os.ReadFile(filepath.Join(r.dir, fileName))
 }
 
-func validateReportFileName(fileName string) error {
+func ValidateReportFileName(fileName string) error {
 	if fileName == "" {
 		return ErrInvalidReportFileName
 	}

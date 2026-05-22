@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -13,11 +13,15 @@ FROM alpine:3.20
 
 WORKDIR /app
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 COPY --from=builder /app/securetodo .
 COPY static ./static
 COPY templates ./templates
 
-RUN mkdir -p data reports
+RUN mkdir -p data reports && chown -R appuser:appgroup /app
+
+USER appuser
 
 EXPOSE 8080
 
