@@ -1,3 +1,15 @@
+resource "aws_key_pair" "app" {
+  key_name   = "${var.project_name}-${var.environment}-managed-key"
+  public_key = file(pathexpand(var.public_key_path))
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-managed-key"
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}
+
 module "network" {
   source = "../../modules/network"
 
@@ -14,6 +26,13 @@ module "storage" {
   environment  = var.environment
 }
 
+module "ecr" {
+  source = "../../modules/ecr"
+
+  project_name = var.project_name
+  environment  = var.environment
+}
+
 module "iam" {
   source = "../../modules/iam"
 
@@ -21,18 +40,7 @@ module "iam" {
   environment         = var.environment
   reports_bucket_name = module.storage.reports_bucket_name
   reports_bucket_arn  = module.storage.reports_bucket_arn
-}
-
-resource "aws_key_pair" "app" {
-  key_name   = "${var.project_name}-${var.environment}-managed-key"
-  public_key = file(pathexpand(var.public_key_path))
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-managed-key"
-    Project     = var.project_name
-    Environment = var.environment
-    ManagedBy   = "terraform"
-  }
+  ecr_repository_arn  = module.ecr.repository_arn
 }
 
 module "compute" {
@@ -46,5 +54,6 @@ module "compute" {
   key_name                  = aws_key_pair.app.key_name
   instance_type             = var.instance_type
   iam_instance_profile_name = module.iam.instance_profile_name
-  user_data                 = file("${path.module}/user_data.sh")
+
+  user_data = file("${path.module}/user_data.sh")
 }

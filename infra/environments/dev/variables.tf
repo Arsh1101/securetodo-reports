@@ -54,3 +54,14 @@ variable "public_key_path" {
   description = "Path to the local SSH public key used to create the EC2 key pair."
   type        = string
 }
+
+variable "app_repo_url" {
+  description = "Git repository URL for the SecureTodo app."
+  type        = string
+}
+
+variable "app_repo_branch" {
+  description = "Git branch to deploy."
+  type        = string
+  default     = "main"
+}
