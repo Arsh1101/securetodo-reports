@@ -49,3 +49,8 @@ variable "aws_profile" {
   type        = string
   default     = "securetodo"
 }
+
+variable "public_key_path" {
+  description = "Path to the local SSH public key used to create the EC2 key pair."
+  type        = string
+}

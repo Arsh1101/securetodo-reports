@@ -23,6 +23,18 @@ module "iam" {
   reports_bucket_arn  = module.storage.reports_bucket_arn
 }
 
+resource "aws_key_pair" "app" {
+  key_name   = "${var.project_name}-${var.environment}-managed-key"
+  public_key = file(pathexpand(var.public_key_path))
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-managed-key"
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
+}
+
 module "compute" {
   source = "../../modules/compute"
 
@@ -31,7 +43,7 @@ module "compute" {
   vpc_id                    = module.network.vpc_id
   public_subnet_id          = module.network.public_subnet_id
   allowed_ssh_cidr          = var.allowed_ssh_cidr
-  key_name                  = var.key_name
+  key_name                  = aws_key_pair.app.key_name
   instance_type             = var.instance_type
   iam_instance_profile_name = module.iam.instance_profile_name
   user_data                 = file("${path.module}/user_data.sh")
