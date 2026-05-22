@@ -1,12 +1,27 @@
 services:
   securetodo:
     build: .
-    ports:
-      - "8080:8080"
+    container_name: securetodo
     environment:
       APP_ADDR: ":8080"
       DB_PATH: "./data/securetodo.db"
+      REPORT_STORAGE: "local"
       REPORTS_DIR: "./reports"
+      AWS_REGION: "ca-central-1"
+      S3_BUCKET_NAME: ""
+      S3_REPORTS_PREFIX: "reports/"
     volumes:
-      - ./data:/app/data
-      - ./reports:/app/reports
+      - ./data:/app/data:Z
+      - ./reports:/app/reports:Z
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: securetodo-nginx
+    ports:
+      - "8081:80"
+    volumes:
+      - ./deploy/nginx/securetodo.local.conf:/etc/nginx/conf.d/default.conf:Z
+    depends_on:
+      - securetodo
+    restart: unless-stopped
