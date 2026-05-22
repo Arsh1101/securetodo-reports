@@ -18,6 +18,7 @@ func NewRouter(todoHandler *handlers.TodoHandler, reportHandler *handlers.Report
 	mux.HandleFunc("/todos/complete", todoHandler.CompleteTodo)
 	mux.HandleFunc("/reports", reportHandler.ListReports)
 	mux.HandleFunc("/reports/generate", reportHandler.GenerateReport)
+	mux.HandleFunc("/reports/download", reportHandler.DownloadReport)
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))

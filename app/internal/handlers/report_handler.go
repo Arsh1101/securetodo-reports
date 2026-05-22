@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"net/url"
 
 	"securetodo-reports/app/internal/models"
 )
@@ -12,6 +13,7 @@ import (
 type ReportService interface {
 	GenerateAndSaveReport(ctx context.Context) (models.TodoReport, error)
 	ListReports(ctx context.Context) ([]string, error)
+	ReadReport(ctx context.Context, fileName string) ([]byte, error)
 }
 
 type ReportHandler struct {
@@ -57,9 +59,42 @@ func (h *ReportHandler) ListReports(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "<ul>")
 
 	for _, report := range reports {
-		fmt.Fprintf(w, "<li>%s</li>", html.EscapeString(report))
+		escapedReport := html.EscapeString(report)
+		downloadURL := "/reports/download?file=" + url.QueryEscape(report)
+
+		fmt.Fprintf(
+			w,
+			`<li>%s - <a href="%s">Download</a></li>`,
+			escapedReport,
+			downloadURL,
+		)
 	}
 
 	fmt.Fprintln(w, "</ul>")
 	fmt.Fprintln(w, "</main></body></html>")
+}
+
+func (h *ReportHandler) DownloadReport(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	fileName := r.URL.Query().Get("file")
+	if fileName == "" {
+		http.Error(w, "missing report file name", http.StatusBadRequest)
+		return
+	}
+
+	data, err := h.service.ReadReport(r.Context(), fileName)
+	if err != nil {
+		http.Error(w, "report not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileName))
+	w.WriteHeader(http.StatusOK)
+
+	_, _ = w.Write(data)
 }

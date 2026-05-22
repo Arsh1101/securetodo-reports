@@ -46,6 +46,10 @@ func (s *ReportService) ListReports(ctx context.Context) ([]string, error) {
 	return s.reportRepo.List(ctx)
 }
 
+func (s *ReportService) ReadReport(ctx context.Context, fileName string) ([]byte, error) {
+	return s.reportRepo.Read(ctx, fileName)
+}
+
 func buildTodoReport(todos []models.Todo) models.TodoReport {
 	completed := 0
 

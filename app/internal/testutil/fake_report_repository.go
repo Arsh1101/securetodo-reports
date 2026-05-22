@@ -1,6 +1,9 @@
 package testutil
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type FakeReportRepository struct {
 	SavedFiles map[string][]byte
@@ -25,4 +28,13 @@ func (r *FakeReportRepository) List(ctx context.Context) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func (r *FakeReportRepository) Read(ctx context.Context, fileName string) ([]byte, error) {
+	data, ok := r.SavedFiles[fileName]
+	if !ok {
+		return nil, errors.New("report not found")
+	}
+
+	return data, nil
 }

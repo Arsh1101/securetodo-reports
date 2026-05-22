@@ -50,3 +50,20 @@ func TestReportServiceGenerateAndSaveReport(t *testing.T) {
 		t.Fatalf("expected 1 saved report, got %d", len(reportRepo.SavedFiles))
 	}
 }
+
+func TestReportServiceReadReport(t *testing.T) {
+	todoRepo := testutil.NewFakeTodoRepository()
+	reportRepo := testutil.NewFakeReportRepository()
+	reportRepo.SavedFiles["todo-report-test.json"] = []byte(`{"total":1}`)
+
+	reportService := NewReportService(todoRepo, reportRepo)
+
+	data, err := reportService.ReadReport(context.Background(), "todo-report-test.json")
+	if err != nil {
+		t.Fatalf("read report: %v", err)
+	}
+
+	if string(data) != `{"total":1}` {
+		t.Fatalf("unexpected report content: %s", string(data))
+	}
+}

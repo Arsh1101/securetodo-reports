@@ -2,10 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
-func TestLocalReportRepositorySaveAndList(t *testing.T) {
+func TestLocalReportRepositorySaveListAndRead(t *testing.T) {
 	dir := t.TempDir()
 
 	repo := NewLocalReportRepository(dir)
@@ -26,5 +27,41 @@ func TestLocalReportRepositorySaveAndList(t *testing.T) {
 
 	if reports[0] != "report.json" {
 		t.Fatalf("unexpected report name: %s", reports[0])
+	}
+
+	data, err := repo.Read(context.Background(), "report.json")
+	if err != nil {
+		t.Fatalf("read report: %v", err)
+	}
+
+	if string(data) != `{"ok":true}` {
+		t.Fatalf("unexpected report content: %s", string(data))
+	}
+}
+
+func TestLocalReportRepositoryRejectsPathTraversal(t *testing.T) {
+	dir := t.TempDir()
+
+	repo := NewLocalReportRepository(dir)
+
+	err := repo.Save(context.Background(), "../secret.json", []byte(`{}`))
+	if !errors.Is(err, ErrInvalidReportFileName) {
+		t.Fatalf("expected ErrInvalidReportFileName, got %v", err)
+	}
+
+	_, err = repo.Read(context.Background(), "../secret.json")
+	if !errors.Is(err, ErrInvalidReportFileName) {
+		t.Fatalf("expected ErrInvalidReportFileName, got %v", err)
+	}
+}
+
+func TestLocalReportRepositoryRejectsNonJSONFile(t *testing.T) {
+	dir := t.TempDir()
+
+	repo := NewLocalReportRepository(dir)
+
+	err := repo.Save(context.Background(), "report.txt", []byte(`hello`))
+	if !errors.Is(err, ErrInvalidReportFileName) {
+		t.Fatalf("expected ErrInvalidReportFileName, got %v", err)
 	}
 }
