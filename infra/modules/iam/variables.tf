@@ -13,7 +13,3 @@ variable "reports_bucket_name" {
 variable "reports_bucket_arn" {
   type = string
 }
-
-variable "ecr_repository_arn" {
-  type = string
-}

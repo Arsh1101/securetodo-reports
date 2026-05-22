@@ -29,11 +29,3 @@ output "security_group_id" {
 output "instance_id" {
   value = module.compute.instance_id
 }
-
-output "ecr_repository_name" {
-  value = module.ecr.repository_name
-}
-
-output "ecr_repository_url" {
-  value = module.ecr.repository_url
-}

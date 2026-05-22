@@ -26,13 +26,6 @@ module "storage" {
   environment  = var.environment
 }
 
-module "ecr" {
-  source = "../../modules/ecr"
-
-  project_name = var.project_name
-  environment  = var.environment
-}
-
 module "iam" {
   source = "../../modules/iam"
 
@@ -40,7 +33,6 @@ module "iam" {
   environment         = var.environment
   reports_bucket_name = module.storage.reports_bucket_name
   reports_bucket_arn  = module.storage.reports_bucket_arn
-  ecr_repository_arn  = module.ecr.repository_arn
 }
 
 module "compute" {

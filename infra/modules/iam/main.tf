@@ -49,24 +49,6 @@ resource "aws_iam_policy" "app_policy" {
           "s3:PutObject"
         ]
         Resource = "${var.reports_bucket_arn}/reports/*"
-      },
-      {
-        Sid    = "GetECRAuthorizationToken"
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken"
-        ]
-        Resource = "*"
-      },
-      {
-        Sid    = "PullAppImageFromECR"
-        Effect = "Allow"
-        Action = [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ]
-        Resource = var.ecr_repository_arn
       }
     ]
   })
