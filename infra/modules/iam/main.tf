@@ -26,9 +26,9 @@ resource "aws_iam_role" "ec2_app_role" {
   }
 }
 
-resource "aws_iam_policy" "reports_s3_policy" {
-  name        = "${local.name_prefix}-reports-s3-policy"
-  description = "Least-privilege access for SecureTodo reports bucket."
+resource "aws_iam_policy" "app_policy" {
+  name        = "${local.name_prefix}-app-policy"
+  description = "Least-privilege access for SecureTodo EC2 app server."
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -49,14 +49,32 @@ resource "aws_iam_policy" "reports_s3_policy" {
           "s3:PutObject"
         ]
         Resource = "${var.reports_bucket_arn}/reports/*"
+      },
+      {
+        Sid    = "GetECRAuthorizationToken"
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "PullAppImageFromECR"
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = var.ecr_repository_arn
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "reports_s3_attachment" {
+resource "aws_iam_role_policy_attachment" "app_policy_attachment" {
   role       = aws_iam_role.ec2_app_role.name
-  policy_arn = aws_iam_policy.reports_s3_policy.arn
+  policy_arn = aws_iam_policy.app_policy.arn
 }
 
 resource "aws_iam_instance_profile" "ec2_app_profile" {

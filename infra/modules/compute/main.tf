@@ -8,12 +8,27 @@ data "aws_ami" "amazon_linux" {
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-x86_64"]
+  }
+
+  filter {
+    name   = "description"
+    values = ["Amazon Linux 2023 AMI*"]
   }
 
   filter {
     name   = "architecture"
     values = ["x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 }
 
@@ -63,6 +78,7 @@ resource "aws_instance" "app" {
   key_name                    = var.key_name
   iam_instance_profile        = var.iam_instance_profile_name
   user_data                   = var.user_data
+  user_data_replace_on_change = true
   associate_public_ip_address = true
 
   root_block_device {
