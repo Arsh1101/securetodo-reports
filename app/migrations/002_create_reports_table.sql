@@ -1,0 +1,3 @@
+-- Reserved for a future phase.
+-- In phase 1, reports are saved as local JSON files.
+-- In phase 2, reports will be saved in S3.

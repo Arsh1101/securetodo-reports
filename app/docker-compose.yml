@@ -1,0 +1,12 @@
+services:
+  securetodo:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      APP_ADDR: ":8080"
+      DB_PATH: "./data/securetodo.db"
+      REPORTS_DIR: "./reports"
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports

@@ -1,0 +1,8 @@
+.DS_Store
+.env
+bin/
+*.db
+securetodo-reports/app/data/*
+securetodo-reports/app/reports/*
+!securetodo-reports/app/data/.gitkeep
+!securetodo-reports/app/reports/.gitkeep
